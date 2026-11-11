@@ -46,3 +46,18 @@ jobs:
           gh release create "$GITHUB_REF_NAME" dist/release/* \
             --title "AM $GITHUB_REF_NAME" \
             --generate-notes
+
+      - name: 更新 Homebrew tap
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          version=$(bun -e 'console.log(require("./package.json").version)')
+          arm64_sha=$(grep ' am-macos-arm64.zip$' dist/release/SHA256SUMS.txt | cut -d ' ' -f1)
+          x64_sha=$(grep ' am-macos-x64.zip$' dist/release/SHA256SUMS.txt | cut -d ' ' -f1)
+          bun run scripts/homebrew-formula.ts "$version" "$arm64_sha" "$x64_sha" > /tmp/am.rb
+          git clone "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/wayne90040/homebrew-am.git" /tmp/tap
+          cp /tmp/am.rb /tmp/tap/Formula/am.rb
+          cd /tmp/tap
+          git -c user.name="am-release-bot" -c user.email="actions@users.noreply.github.com" \
+            commit -am "chore: update am to v${version}" --allow-empty
+          git push
