@@ -220,6 +220,7 @@ Claude Code 一個設定資料夾對應一個登入（`CLAUDE_CONFIG_DIR`；macO
 - `am autostart on`：寫入開機設定並立即在背景啟動網站。開機設定記錄的是當下執行檔的完整路徑，移動執行檔後需重新執行一次。
 - `am autostart off`：移除開機設定，並透過網站的關閉 API（`POST /api/shutdown`，同樣經過來源檢查）停止執行中的網站。
 - macOS 網站的輸出記錄在設定目錄下的 `server.log`。
+- 透過 Homebrew 安裝時改用 `brew services start|stop am`（Homebrew 原生的 LaunchAgent 管理），不要同時使用 `am autostart`，避免兩份 LaunchAgent 互相衝突。
 
 ## 10. 衝突處理
 
@@ -250,6 +251,8 @@ Claude Code 一個設定資料夾對應一個登入（`CLAUDE_CONFIG_DIR`；macO
 
 macOS 執行檔：打包會改動執行檔內容，使原本的簽章失效，而 macOS 會拒絕執行簽章無效的下載檔案。因此打包後以 `codesign --force --sign -` 重新做臨時簽章，並以 `codesign --verify --strict` 檢查；這一步只能在 macOS 上執行。
 
+建立 GitHub Release 後，再從 `dist/release/SHA256SUMS.txt` 取出 macOS 兩個 zip 的 sha256，用 `scripts/homebrew-formula.ts` 產生新版 `Formula/am.rb`，push 到獨立的 tap repo `wayne90040/homebrew-am`（需要 `secrets.HOMEBREW_TAP_TOKEN`，一個只有該 repo 寫入權限的 fine-grained PAT）。
+
 ### 自動測試
 
 推送到 `develop`、`master` 時，`.github/workflows/test.yml` 會：
@@ -262,8 +265,9 @@ macOS 執行檔：打包會改動執行檔內容，使原本的簽章失效，�
 
 | 平台 | 一行指令 | 安裝位置 |
 |---|---|---|
-| macOS | `curl -fsSL https://raw.githubusercontent.com/coollazy/AM/master/scripts/install/install.sh \| sh` | `~/.local/bin/am` |
-| Windows | `irm https://raw.githubusercontent.com/coollazy/AM/master/scripts/install/install.ps1 \| iex` | `%LOCALAPPDATA%\Programs\am\am.exe` |
+| macOS | `curl -fsSL https://raw.githubusercontent.com/wayne90040/AM/master/scripts/install/install.sh \| sh` | `~/.local/bin/am` |
+| macOS（Homebrew） | `brew install wayne90040/am/am` | Homebrew 的 `bin` 目錄（例如 `/opt/homebrew/bin/am`） |
+| Windows | `irm https://raw.githubusercontent.com/wayne90040/AM/master/scripts/install/install.ps1 \| iex` | `%LOCALAPPDATA%\Programs\am\am.exe` |
 
 安裝腳本（`scripts/install/`）同時支援兩種用法：一行指令執行時從 GitHub Releases 下載；在解壓縮後的安裝包資料夾中執行時，安裝旁邊的執行檔。流程：
 
@@ -275,6 +279,8 @@ macOS 執行檔：打包會改動執行檔內容，使原本的簽章失效，�
 6. 原本有開機自動執行 → 重新執行 `am autostart on`；原本網站手動執行中 → 重新啟動；全新安裝 → 詢問是否開啟開機自動執行、是否開啟管理網站（預設「是」）。
 
 可用環境變數：`AM_VERSION`（指定版本）、`AM_INSTALL_DIR`（安裝目錄）、`AM_NO_PROMPT=1`（不詢問）、`AM_NO_MODIFY_PATH=1`（macOS 不修改 shell 設定檔）、`AM_DOWNLOAD_URL`（下載位置，可指向鏡像站或測試伺服器）。
+
+Homebrew 走完全獨立的安裝路徑，不經過 `scripts/install/install.sh`：`brew install` 直接解壓縮 release 的 `am-macos-<arch>.zip` 把執行檔放進 Homebrew 的 `bin`；PATH、更新（`brew upgrade`）、移除都交給 Homebrew 處理，`Formula/am.rb` 見 `wayne90040/homebrew-am` repo。
 
 Windows 編碼：`irm | iex` 下載的腳本以 UTF-8 解讀（GitHub raw 回應帶 `charset=utf-8`），儲存庫中的 `install.ps1` 不加 BOM；壓縮檔內的 `install.ps1` 以 `powershell -File` 執行，Windows PowerShell 5.1 需要 BOM 才會正確讀取中文，由 `scripts/package.ts` 打包時加上。一行指令執行時腳本跑在使用者目前的 PowerShell 中，出錯只能用 `throw`，不可用 `exit`（會關掉視窗）。
 

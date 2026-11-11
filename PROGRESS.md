@@ -14,6 +14,21 @@
 
 ## 進行中
 
+### Homebrew 一鍵安裝／卸載
+- 開始日期：2026-11-11
+- 目前狀態：
+  - 發現並修正既有 bug：`install.sh`／`install.ps1`／README／architecture 裡的下載來源寫成 `coollazy/AM`，與實際 remote `wayne90040/AM` 不一致，已全部改為 `wayne90040/AM`。
+  - 新增 `scripts/homebrew-formula.ts`（純函式 `renderFormula`，產生 `Formula/am.rb` 內容）與對應測試 `tests/scripts/homebrew-formula.test.ts`。
+  - `release.yml` 新增「更新 Homebrew tap」步驟：打包完成後從 `SHA256SUMS.txt` 取 macOS 兩個 zip 的 sha256，產生新版 formula，push 到 `wayne90040/homebrew-am`（需要 secret `HOMEBREW_TAP_TOKEN`）。
+  - README／architecture 補上 Homebrew 安裝／卸載說明：開機自動執行改用 `brew services`、卸載前建議先 `am uninstall --keep-config --yes`。
+  - 設計決定：tap 放獨立 repo `wayne90040/homebrew-am`；formula 直接抓現有 release 的 zip（不在 brew 端重新編譯）；開機自動執行用 `service` 區塊接 `brew services`，不沿用 `am autostart`，避免兩份 LaunchAgent 衝突。
+- 下一步：
+  1. 使用者需自行建立 fine-grained PAT（只給 `wayne90040/homebrew-am` 的 Contents: Read and write），`gh secret set HOMEBREW_TAP_TOKEN --repo wayne90040/AM`。
+  2. 建立 `wayne90040/homebrew-am` repo（初版隨便放一份佔位 `Formula/am.rb`，待第一次 release 後由 CI 覆蓋成真實版本）。
+  3. 打 tag 觸發第一次正式 release（目前完全沒有 release，`gh release list` 為空），讓 `release.yml` 跑出真正的 `am-macos-*.zip`、`SHA256SUMS.txt` 並推送第一版 formula。
+  4. 實機 `brew tap wayne90040/am && brew install am` 驗證。
+- 待決問題：無（repo 建立與打 tag 皆需使用者再次確認才執行）。
+
 ### 多個 Claude 訂閱帳號（macOS）
 - 開始日期：2026-09-30
 - 分支：`feature/multi-subscription`
