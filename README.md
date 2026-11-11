@@ -23,13 +23,13 @@
 **macOS**：打開「終端機」，貼上這行後按 Enter：
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/coollazy/AM/master/scripts/install/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/wayne90040/AM/master/scripts/install/install.sh | sh
 ```
 
 **Windows**：打開「PowerShell」，貼上這行後按 Enter：
 
 ```powershell
-irm https://raw.githubusercontent.com/coollazy/AM/master/scripts/install/install.ps1 | iex
+irm https://raw.githubusercontent.com/wayne90040/AM/master/scripts/install/install.ps1 | iex
 ```
 
 安裝腳本會自動判斷電腦類型、下載最新版、檢查檔案完整性並設定好 PATH，最後詢問要不要開啟開機自動執行、要不要立即打開管理網站。
@@ -39,10 +39,25 @@ irm https://raw.githubusercontent.com/coollazy/AM/master/scripts/install/install
 - **更新**：重新執行同一行指令即可。會先停止執行中的管理網站再替換，並保留開機自動執行的設定。
 - **安裝指定版本**：macOS 在 `sh` 前加上 `AM_VERSION=v1.2.0`，例如 `curl -fsSL … | AM_VERSION=v1.2.0 sh`；Windows 先執行 `$env:AM_VERSION="v1.2.0"`。
 
+**macOS（Homebrew）**：
+
+```sh
+brew install wayne90040/am/am
+```
+
+- 開機自動執行改用 `brew services start am`（不要同時用 `am autostart`，避免兩份開機設定互相衝突）；`brew services stop am` 關閉。
+- **更新**：`brew upgrade am`。
+- **卸載**：
+  ```sh
+  brew services stop am   # 如果有用 brew services 開機自動執行
+  am uninstall --keep-config --yes
+  brew uninstall am
+  ```
+
 <details>
 <summary>不想用一行指令？手動下載安裝</summary>
 
-到 [Releases](https://github.com/coollazy/AM/releases/latest) 下載符合你電腦的壓縮檔並解壓縮：
+到 [Releases](https://github.com/wayne90040/AM/releases/latest) 下載符合你電腦的壓縮檔並解壓縮：
 
 | 電腦 | 檔案 |
 |---|---|

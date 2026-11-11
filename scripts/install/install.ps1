@@ -1,7 +1,7 @@
 # AM 安裝腳本（Windows）
 #
 # 一行指令安裝（在 PowerShell 中執行，自動下載最新版）：
-#   irm https://raw.githubusercontent.com/coollazy/AM/master/scripts/install/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/wayne90040/AM/master/scripts/install/install.ps1 | iex
 # 也可以在解壓縮後的安裝包資料夾中執行：
 #   powershell -ExecutionPolicy Bypass -File .\install.ps1
 #
@@ -13,7 +13,7 @@
   $ProgressPreference = "SilentlyContinue"
   [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
-  $repo = "coollazy/AM"
+  $repo = "wayne90040/AM"
   $destDir = if ($env:AM_INSTALL_DIR) { $env:AM_INSTALL_DIR } else { Join-Path $env:LOCALAPPDATA "Programs\am" }
   $dest = Join-Path $destDir "am.exe"
   $configDir = if ($env:AM_CONFIG_DIR) { $env:AM_CONFIG_DIR } else { Join-Path $env:USERPROFILE ".am" }

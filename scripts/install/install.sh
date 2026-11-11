@@ -2,7 +2,7 @@
 # AM 安裝腳本（macOS）
 #
 # 一行指令安裝（自動下載最新版）：
-#   curl -fsSL https://raw.githubusercontent.com/coollazy/AM/master/scripts/install/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/wayne90040/AM/master/scripts/install/install.sh | sh
 # 也可以在解壓縮後的安裝包資料夾中執行 ./install.sh，直接安裝旁邊的執行檔。
 #
 # 可用環境變數：
@@ -13,7 +13,7 @@
 #   AM_DOWNLOAD_URL  下載位置（預設 GitHub Releases，可指向鏡像站或測試伺服器）
 set -eu
 
-REPO="coollazy/AM"
+REPO="wayne90040/AM"
 DEST_DIR="${AM_INSTALL_DIR:-$HOME/.local/bin}"
 DEST="${DEST_DIR}/am"
 CONFIG_FILE="${AM_CONFIG_DIR:-$HOME/.am}/config.json"
